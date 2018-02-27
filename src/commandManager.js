@@ -50,6 +50,12 @@ module.exports = function(config, bot, listener) {
 		        	        bot.sendMessage(msg.from.id, replyMessage[i]);
 					    replyMessage = replyMessage[replyMessage.length-1];
 					}
+					else if(replyMessage.img)
+					{
+						logger.info(replyMessage.img);
+						bot.sendPhoto(msg.from.id,replyMessage.img, { 'caption' : replyMessage.msg });
+						replyMessage = '';
+					}
 					else if(replyMessage.msg)
 					{
 					    if(replyMessage.keyboard)
@@ -60,12 +66,12 @@ module.exports = function(config, bot, listener) {
 					    config.logger.info("reply Type: " + typeof replyMessage);
 
 
-
-		            bot.sendMessage(msg.from.id, replyMessage, {
-		            	reply_markup: {
-		                    keyboard: keyboard 
-                        }
-                    });
+					if(replyMessage != '')
+			            bot.sendMessage(msg.from.id, replyMessage, {
+			            	reply_markup: {
+			                    keyboard: keyboard 
+            	            }
+                	    });
                 }
             });
         });

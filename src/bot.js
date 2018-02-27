@@ -41,5 +41,12 @@ module.exports = function(config, listener) {
         });
     };
 
+    /** Sends a Telegram location message to the watching users */
+    exports.sendSimpleNotification = function(users, caption) {
+        users.map(function(user) {
+            bot.sendMessage(user, caption)
+        });
+    };
+
     return exports;
 }

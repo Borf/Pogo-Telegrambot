@@ -29,7 +29,7 @@ module.exports = {
      * @param {Boolean} created - Was the user created as a result of the command call?
      */
     callback: function(msg, match, user, created) {
-        user.watchlist = pokedex.getPokemonIdsByNames(config.watchlist);
+        user.watchlist = [];
         user.save();
     }
 

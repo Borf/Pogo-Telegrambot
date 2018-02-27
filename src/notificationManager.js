@@ -5,8 +5,8 @@ var fs = require('fs'),
     _ = require('lodash'),
     util = require('util'),
     request = require('request').defaults({ encoding: null }),
-    User = require('./user');
-
+    User = require('./user'),
+    moves = JSON.parse(fs.readFileSync('./db/moves.json'));
 module.exports = function(config, bot, listener) {
 
     var logger = config.logger;
@@ -84,7 +84,7 @@ module.exports = function(config, bot, listener) {
   latitude: 51.626515,
   cp: 12269 }*/
     listener.on('raid', function(payload) {
-		logger.info("Raid: " + util.inspect(payload));
+//		logger.info("Raid: " + util.inspect(payload));
 		if(raids[payload.gym_id])
 		{
 		
@@ -112,7 +112,9 @@ module.exports = function(config, bot, listener) {
                         userIds,
                         'A ' + pokemon[payload.pokemon_id] + ' raid is starting at ' + gym + '\n' +
 						"Ends in " + Math.round((payload.end - (Date.now()/1000))/60) + " minutes\n" +
-						"Starts in " + Math.round((payload.start - (Date.now()/1000))/60) + " minutes",
+						"Starts in " + Math.round((payload.start - (Date.now()/1000))/60) + " minutes\n" + 
+						"Disappears at " + disappearTime(payload.end) + "\n" +
+						"Moves: " + moves[payload.move_1].name + ", " + moves[payload.move_2].name,
                         [payload.latitude, payload.longitude]
                     );
                 }
@@ -211,10 +213,41 @@ module.exports = function(config, bot, listener) {
     listener.on('gymadd', function(data)
     {
 		logger.info("Player " + data.player.trainer_name + " put a " + pokemon[data.player.pokemon_id] + " in the gym " + data.gym.details.name + "(" + data.player.deployment_time + ")");
-//		logger.info(util.inspect(data.player));
+//		logger.info("IV: " + Math.round((data.player.iv_defense + data.player.iv_stamina + data.player.iv_attack) / .45) + ", CP: " + data.player.cp);
+		logger.info(util.inspect(data.player));
+
+
+
+        User.find({ active: true })
+            .then(function(users) {
+            	users = users.filter(function(user) { return user.ivname.toLowerCase() == data.player.trainer_name.toLowerCase() && user.ivwatch.indexOf(data.player.pokemon_uid) == -1; });
+                _.forEach(users, u =>
+                {
+                	u.ivwatch.push(data.player.pokemon_uid);
+                	u.save();
+                });
+
+                var userIds = users.map(function(user) {
+                    return user.telegramId;
+                });
+
+                if (userIds.length) {
+                    bot.sendSimpleNotification(
+                        userIds,
+                        'Pokemon ' + pokemon[data.player.pokemon_id] + '(' + data.player.cp + ") has an IV of " + Math.round((data.player.iv_defense + data.player.iv_stamina + data.player.iv_attack) / .45) + '%\n' +
+                        "Attack: " + data.player.iv_attack + ", Defense: " + data.player.iv_defense + ", Stamina: " + data.player.iv_stamina
+                    );
+                }
+                
+                
+            });
+
+
+
+
     });
 	listener.on('captcha', function(payload) {
-		bot.sendNotification( [ 186558543 ], "Captcha message: " + util.inspect(payload));
+//		bot.sendNotification( [ 186558543 ], "Captcha message: " + util.inspect(payload));
 	});
 
     listener.on('debug', function(payload) {

@@ -14,5 +14,6 @@ module.exports = [
     require('./stop'),
     require('./helpstub'),
     require('./gymdebug'),
-    require('./raid')
+    require('./raid'),
+    require('./iv')
 ];

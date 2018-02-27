@@ -1,7 +1,6 @@
 'use strict';
 
-var pokedex = require('../pokedex'),
-    logger = require('winston'),
+var logger = require('winston'),
     config   = require('config.json')('./config.json');
 
 /**
@@ -35,7 +34,7 @@ module.exports = {
         if (created) {
             logger.info('Created new user with id %s', user.telegramId);
             // New users start with the default watchlist
-            user.watchlist = pokedex.getPokemonIdsByNames(config.watchlist);
+            user.watchlist = [];
         } else {
             user.active = true;
             user.save();

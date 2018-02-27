@@ -1,7 +1,7 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-    Pokedex = require('./pokedex'),
+    pokedex = require('./pokedex2'),
     config = require('config.json')('./config.json'),
 	_ = require('lodash'),
     Schema = mongoose.Schema;
@@ -14,7 +14,15 @@ var UserSchema = new Schema({
     },
     watchlist: {
         type: [Number], // Collection of pokedex numbers
-        default: Pokedex.getPokemonIdsByNames(config.watchlist)
+        default: []
+    },
+    ivwatch : {
+    	type: [String],
+    	default: []
+    },
+    ivname : {
+    	type: String,
+    	default: ""
     },
     raidwatchlist: {
 	type: [Schema.Types.Mixed],
